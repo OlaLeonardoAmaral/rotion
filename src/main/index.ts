@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { createFileRoute, createURLRoute } from 'electron-router-dom'
 import { join } from 'path'
 import path from 'node:path'
+import './ipc'
 
 function createWindow(): void {
   // Create the browser window.
