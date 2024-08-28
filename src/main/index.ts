@@ -4,7 +4,8 @@ import { createFileRoute, createURLRoute } from 'electron-router-dom'
 import { join } from 'path'
 import path from 'node:path'
 import './ipc'
-import './store'
+// import './store'
+
 
 function createWindow(): void {
   // Create the browser window.

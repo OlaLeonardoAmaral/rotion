@@ -12,8 +12,7 @@ export function Sidebar() {
 
   const fetchDocuments = async () => {
     const response = await window.api.fetchDocuments()
-    console.log(response)
-    return response
+    return response.data
   }
 
   const { data } = useQuery(
