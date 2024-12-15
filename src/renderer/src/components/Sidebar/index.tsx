@@ -50,7 +50,6 @@ export function Sidebar() {
           'flex-1 flex flex-col gap-8 h-full w-[240px] group-data-[state=open]:opacity-100 group-data-[state=closed]:opacity-0 transition-opacity duration-200',
           {
             'pt-6': !isMacOS,
-            '-translate-y-[1.125rem] region-no-drag': isMacOS,
           },
         )}
       >
