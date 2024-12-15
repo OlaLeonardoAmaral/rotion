@@ -1,20 +1,43 @@
 import { useParams } from "react-router-dom";
-import { Editor } from "../components/Editor";
+import { Editor, onContentUpdatedParams } from "../components/Editor";
 import { ToC } from "../components/ToC";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { Document as IPCDocument } from "@shared/types/ipc";
 
 
 
 export function Document() {
-
     const { id } = useParams<{ id: string }>()
+    const queryClient = useQueryClient()
 
     const fetchDocument = async () => {
         const response = await window.api.fetchDocument({ id: id! })
         return response.data
-      }
-    
+    }
+
+
+    const { mutateAsync: saveDocument } = useMutation({
+        mutationFn: async ({ title, content }: onContentUpdatedParams) => {
+            await window.api.saveDocument({
+                id: id!,
+                title,
+                content,
+            })
+        },
+        onSuccess: (_, { title, content }) => {
+            queryClient.setQueriesData({ queryKey: ["documents"] }, (documents: IPCDocument[] | undefined) => {
+                return documents?.map(document => {
+                    if (document.id === id) {
+                        return { ...document, title }
+                    }
+
+                    return document
+                })
+            })
+        },
+    })
+
     const { data, isFetching } = useQuery({
         queryKey: ['document', id],
         queryFn: fetchDocument,
@@ -22,11 +45,19 @@ export function Document() {
 
 
     const initialContent = useMemo(() => {
-        if(data) {
+        if (data) {
             return `<h1>${data.title}</h1>${data.content ?? '<p></p>'}`
         }
         return ''
     }, [data])
+
+
+    function handleEditorContentUpdated({ title, content }: onContentUpdatedParams) {
+        saveDocument({
+            title,
+            content
+        })
+    }
 
     return (
         <main className="flex-1 flex py-12 px-10 gap-8">
@@ -45,7 +76,10 @@ export function Document() {
             </aside>
 
             <section className="flex-1 flex flex-col items-center">
-                {!isFetching && data &&  <Editor content={initialContent}/>}
+                {!isFetching && data &&
+                    <Editor
+                        onContentUpdated={handleEditorContentUpdated}
+                        content={initialContent} />}
             </section>
 
         </main>

@@ -10,7 +10,6 @@ export function CreatePage() {
     useMutation({
       mutationFn: async () => {
         const response = await window.api.createDocument();
-
         return response.data;
       },
       onSuccess: (data) => {

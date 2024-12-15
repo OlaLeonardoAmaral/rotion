@@ -5,12 +5,18 @@ import Typography from "@tiptap/extension-typography";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-interface EditorProps {
+export interface onContentUpdatedParams {
+    title: string
     content: string
 }
 
+interface EditorProps {
+    content: string
+    onContentUpdated: (params: onContentUpdatedParams) => void
+}
 
-export function Editor({ content }: EditorProps) {
+
+export function Editor({ content, onContentUpdated }: EditorProps) {
 
     const editor = useEditor({
         extensions: [
@@ -27,6 +33,19 @@ export function Editor({ content }: EditorProps) {
                 emptyEditorClass: 'before:content-[attr(data-placeholder)] before:text-gray-500 before:h-0 before:float-left before:pointer-events-none',
             })
         ],
+        onUpdate: ({ editor }) => {
+            // /(<h1>(.+)<\/h1>(.+)?)/g <- usa o G no final se caso a patina tiver mais de um titulo, etc
+            const contentRegex = /(<h1>(?<title>.+)<\/h1>(?<content>.+)?)/
+            const parsedContent = editor.getHTML().match(contentRegex)?.groups
+            
+            const title = parsedContent?.title ?? 'Untitled'
+            const content = parsedContent?.content ?? ''
+
+            onContentUpdated({
+                title,
+                content
+            })
+        },
         content,
         autofocus: 'end',
         editorProps: {
